@@ -1,0 +1,71 @@
+<!-- app/templates/reader.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ chapter.series.name }} - Capítulo {{ chapter.chapter_number }}</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/reader.css') }}">
+</head>
+<body>
+    <!-- Overlay de carga -->
+    <div id="loading-overlay" style="display: none;">
+        <div class="spinner"></div>
+        <p>Cargando página...</p>
+    </div>
+    
+    <!-- Mensaje de error -->
+    <div id="error-message" class="error-toast" style="display: none;"></div>
+    
+    <!-- Barra de navegación superior -->
+    <header class="reader-header">
+        <div class="header-left">
+            <a href="/library" class="btn-back">← Volver</a>
+            <div class="chapter-info">
+                <h1>{{ chapter.series.name }}</h1>
+                <span class="chapter-number">Capítulo {{ chapter.chapter_number }}</span>
+            </div>
+        </div>
+        
+        <div class="header-center">
+            <span id="page-info">Cargando...</span>
+        </div>
+        
+        <div class="header-right">
+            <button id="btn-view-mode" class="btn-control">📖 1 Página</button>
+        </div>
+    </header>
+    
+    <!-- Contenedor principal del lector -->
+    <main id="reader-app" data-chapter-slug="{{ chapter.slug }}">
+        <div id="page-container" class="page-container"></div>
+    </main>
+    
+    <!-- Barra de controles inferior -->
+    <footer class="reader-controls">
+        <div class="controls-group">
+            <button id="btn-prev" class="btn-nav">
+                <span>◀</span> Anterior
+            </button>
+            
+            <div class="page-selector">
+                <span>Ir a página:</span>
+                <input 
+                    type="number" 
+                    id="page-input" 
+                    min="1" 
+                    max="{{ chapter.page_count }}"
+                    value="1"
+                >
+                <button id="btn-go-page" class="btn-go">Ir</button>
+            </div>
+            
+            <button id="btn-next" class="btn-nav">
+                Siguiente <span>▶</span>
+            </button>
+        </div>
+    </footer>
+    
+    <script src="{{ url_for('static', filename='js/reader.js') }}"></script>
+</body>
+</html>

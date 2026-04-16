@@ -1,0 +1,577 @@
+<!-- app/templates/series.html -->
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ series.name }} - Capítulos</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f0f0f;
+            color: white;
+            min-height: 100vh;
+        }
+
+        /* Header */
+        .header {
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(10px);
+            padding: 15px 0;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .header-content {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 20px;
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+
+        .back-btn {
+            color: #4a9eff;
+            text-decoration: none;
+            font-size: 16px;
+            padding: 8px 16px;
+            border-radius: 6px;
+            transition: background 0.2s;
+        }
+
+        .back-btn:hover {
+            background: rgba(74, 158, 255, 0.1);
+        }
+
+        /* Series Info */
+        .series-header {
+            max-width: 1200px;
+            margin: 30px auto;
+            padding: 0 20px;
+            display: grid;
+            grid-template-columns: 200px 1fr;
+            gap: 30px;
+        }
+
+        .series-cover-large {
+            width: 200px;
+            height: 300px;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 8px 30px rgba(0,0,0,0.5);
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 64px;
+        }
+
+        .series-cover-large img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .series-details {
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .series-title {
+            font-size: 32px;
+            font-weight: bold;
+            margin-bottom: 15px;
+        }
+
+        .series-description {
+            color: #aaa;
+            line-height: 1.6;
+            margin-bottom: 20px;
+        }
+
+        .series-stats {
+            display: flex;
+            gap: 30px;
+        }
+
+        .stat {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .stat-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #4a9eff;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 14px;
+        }
+
+        /* Chapters Section */
+        .chapters-section {
+            max-width: 1200px;
+            margin: 40px auto;
+            padding: 0 20px;
+        }
+
+        .section-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 10px;
+        }
+
+        .toggle-btn {
+            padding: 8px 16px;
+            background: rgba(255, 255, 255, 0.1);
+            border: none;
+            border-radius: 6px;
+            color: white;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .toggle-btn.active {
+            background: #4a9eff;
+        }
+
+        /* Chapter List View */
+        .chapters-list {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .chapter-item {
+            background: rgba(255, 255, 255, 0.05);
+            padding: 20px;
+            border-radius: 12px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            transition: all 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            border: 2px solid transparent;
+        }
+
+        .chapter-item:hover {
+            background: rgba(255, 255, 255, 0.1);
+            border-color: #4a9eff;
+            transform: translateX(5px);
+        }
+
+        .chapter-main {
+            flex: 1;
+        }
+
+        .chapter-number {
+            font-size: 18px;
+            font-weight: 600;
+            color: #4a9eff;
+            margin-bottom: 5px;
+        }
+
+        .chapter-title {
+            color: #ccc;
+            font-size: 14px;
+        }
+
+        .chapter-meta {
+            display: flex;
+            flex-direction: column;
+            align-items: flex-end;
+            gap: 5px;
+        }
+
+        .chapter-pages {
+            color: #888;
+            font-size: 13px;
+        }
+
+        .read-btn {
+            background: #4a9eff;
+            color: white;
+            padding: 8px 20px;
+            border-radius: 6px;
+            border: none;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .read-btn:hover {
+            background: #3a8eef;
+            transform: scale(1.05);
+        }
+
+        /* Chapter Grid View */
+        .chapters-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+            gap: 20px;
+        }
+
+        .chapter-card {
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 12px;
+            overflow: hidden;
+            transition: all 0.3s;
+            cursor: pointer;
+            text-decoration: none;
+            color: inherit;
+            border: 2px solid transparent;
+        }
+
+        .chapter-card:hover {
+            transform: translateY(-5px);
+            border-color: #4a9eff;
+            box-shadow: 0 8px 30px rgba(74, 158, 255, 0.3);
+        }
+
+        .chapter-thumbnail {
+            width: 100%;
+            height: 200px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 32px;
+            position: relative;
+        }
+
+        .chapter-thumbnail img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+        }
+
+        .chapter-badge {
+            position: absolute;
+            top: 10px;
+            right: 10px;
+            background: rgba(0, 0, 0, 0.8);
+            padding: 5px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+
+        .chapter-card-info {
+            padding: 15px;
+        }
+
+        .chapter-card-number {
+            font-weight: 600;
+            color: #4a9eff;
+            margin-bottom: 5px;
+        }
+
+        .chapter-card-title {
+            font-size: 13px;
+            color: #aaa;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+
+        /* Empty State */
+        .empty-state {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .empty-icon {
+            font-size: 64px;
+            margin-bottom: 20px;
+        }
+
+        /* Progress Badge */
+        .progress-badge {
+            background: rgba(76, 175, 80, 0.2);
+            color: #4caf50;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 12px;
+            font-weight: 500;
+        }
+
+        .completed-badge {
+            background: rgba(74, 158, 255, 0.2);
+            color: #4a9eff;
+        }
+
+        /* Loading */
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: #666;
+        }
+
+        .spinner {
+            width: 50px;
+            height: 50px;
+            border: 4px solid rgba(255, 255, 255, 0.1);
+            border-top-color: #4a9eff;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .series-header {
+                grid-template-columns: 1fr;
+                text-align: center;
+            }
+
+            .series-cover-large {
+                margin: 0 auto;
+            }
+
+            .series-stats {
+                justify-content: center;
+            }
+
+            .chapters-grid {
+                grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+                gap: 15px;
+            }
+
+            .chapter-thumbnail {
+                height: 160px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Header -->
+    <header class="header">
+        <div class="header-content">
+            <a href="/library" class="back-btn">← Volver a Biblioteca</a>
+        </div>
+    </header>
+
+    <!-- Series Info -->
+    <div class="series-header">
+        <div class="series-cover-large">
+            {% if series.cover_url %}
+                <img src="{{ series.cover_url }}" alt="{{ series.name }}">
+            {% else %}
+                📖
+            {% endif %}
+        </div>
+        <div class="series-details">
+            <h1 class="series-title">{{ series.name }}</h1>
+            {% if series.description %}
+                <p class="series-description">{{ series.description }}</p>
+            {% endif %}
+            <div class="series-stats">
+                <div class="stat">
+                    <span class="stat-value" id="chapterCount">0</span>
+                    <span class="stat-label">Capítulos</span>
+                </div>
+                <div class="stat">
+                    <span class="stat-value" id="totalPages">0</span>
+                    <span class="stat-label">Páginas totales</span>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Chapters Section -->
+    <div class="chapters-section">
+        <div class="section-header">
+            <h2 class="section-title">Capítulos</h2>
+            <div class="view-toggle">
+                <button class="toggle-btn active" data-view="list" onclick="switchView('list')">📋 Lista</button>
+                <button class="toggle-btn" data-view="grid" onclick="switchView('grid')">🔲 Cuadrícula</button>
+            </div>
+        </div>
+
+        <div id="chaptersContainer">
+            <div class="loading">
+                <div class="spinner"></div>
+                <p>Cargando capítulos...</p>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const seriesSlug = '{{ series.slug }}';
+        let chapters = [];
+        let currentView = 'list';
+
+        // Cargar capítulos
+        async function loadChapters() {
+            try {
+                const response = await fetch(`/api/library/series/${seriesSlug}`);
+                const data = await response.json();
+                
+                chapters = data.chapters;
+                displayChapters();
+                updateStats();
+                
+            } catch (error) {
+                console.error('Error loading chapters:', error);
+                document.getElementById('chaptersContainer').innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">⚠️</div>
+                        <h3>Error al cargar capítulos</h3>
+                        <p>${error.message}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Mostrar capítulos
+        function displayChapters() {
+            const container = document.getElementById('chaptersContainer');
+            
+            if (chapters.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state">
+                        <div class="empty-icon">📚</div>
+                        <h3>No hay capítulos todavía</h3>
+                        <p>Sube el primer capítulo de esta serie</p>
+                    </div>
+                `;
+                return;
+            }
+
+            if (currentView === 'list') {
+                displayListView();
+            } else {
+                displayGridView();
+            }
+        }
+
+        // Vista de lista
+        function displayListView() {
+            const container = document.getElementById('chaptersContainer');
+            const listDiv = document.createElement('div');
+            listDiv.className = 'chapters-list';
+
+            // Ordenar por número de capítulo
+            const sortedChapters = [...chapters].sort((a, b) => {
+                return parseFloat(a.chapter_number) - parseFloat(b.chapter_number);
+            });
+
+            sortedChapters.forEach(chapter => {
+                const item = document.createElement('a');
+                item.className = 'chapter-item';
+                item.href = `/reader/${chapter.slug}`;
+                
+                item.innerHTML = `
+                    <div class="chapter-main">
+                        <div class="chapter-number">Capítulo ${chapter.chapter_number}</div>
+                        ${chapter.title ? `<div class="chapter-title">${chapter.title}</div>` : ''}
+                    </div>
+                    <div class="chapter-meta">
+                        <span class="chapter-pages">📄 ${chapter.page_count} páginas</span>
+                        <button class="read-btn" onclick="event.preventDefault(); window.location.href='/reader/${chapter.slug}'">
+                            Leer →
+                        </button>
+                    </div>
+                `;
+                
+                listDiv.appendChild(item);
+            });
+
+            container.innerHTML = '';
+            container.appendChild(listDiv);
+        }
+
+        // Vista de cuadrícula
+        function displayGridView() {
+            const container = document.getElementById('chaptersContainer');
+            const gridDiv = document.createElement('div');
+            gridDiv.className = 'chapters-grid';
+
+            const sortedChapters = [...chapters].sort((a, b) => {
+                return parseFloat(a.chapter_number) - parseFloat(b.chapter_number);
+            });
+
+            sortedChapters.forEach(chapter => {
+                const card = document.createElement('a');
+                card.className = 'chapter-card';
+                card.href = `/reader/${chapter.slug}`;
+                
+                card.innerHTML = `
+                    <div class="chapter-thumbnail">
+                        ${chapter.thumbnail_url 
+                            ? `<img src="${chapter.thumbnail_url}" alt="Capítulo ${chapter.chapter_number}">` 
+                            : `📖`
+                        }
+                        <span class="chapter-badge">${chapter.page_count} pág.</span>
+                    </div>
+                    <div class="chapter-card-info">
+                        <div class="chapter-card-number">Cap. ${chapter.chapter_number}</div>
+                        ${chapter.title ? `<div class="chapter-card-title">${chapter.title}</div>` : ''}
+                    </div>
+                `;
+                
+                gridDiv.appendChild(card);
+            });
+
+            container.innerHTML = '';
+            container.appendChild(gridDiv);
+        }
+
+        // Cambiar vista
+        function switchView(view) {
+            currentView = view;
+            
+            // Actualizar botones
+            document.querySelectorAll('.toggle-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if (btn.dataset.view === view) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            displayChapters();
+        }
+
+        // Actualizar estadísticas
+        function updateStats() {
+            document.getElementById('chapterCount').textContent = chapters.length;
+            
+            const totalPages = chapters.reduce((sum, ch) => sum + ch.page_count, 0);
+            document.getElementById('totalPages').textContent = totalPages;
+        }
+
+        // Inicializar
+        loadChapters();
+    </script>
+</body>
+</html>

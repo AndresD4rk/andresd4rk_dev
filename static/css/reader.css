@@ -1,0 +1,304 @@
+/* app/static/css/reader.css */
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif;
+    background-color: #1a1a1a;
+    color: #ffffff;
+    overflow: hidden;
+}
+
+/* Header */
+.reader-header {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 60px;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    z-index: 1000;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.header-left {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.btn-back {
+    color: #4a9eff;
+    text-decoration: none;
+    font-size: 16px;
+    padding: 8px 16px;
+    border-radius: 6px;
+    transition: background 0.2s;
+}
+
+.btn-back:hover {
+    background: rgba(74, 158, 255, 0.1);
+}
+
+.chapter-info h1 {
+    font-size: 18px;
+    font-weight: 600;
+    margin-bottom: 4px;
+}
+
+.chapter-number {
+    font-size: 14px;
+    color: #888;
+}
+
+.header-center {
+    font-size: 16px;
+    font-weight: 500;
+}
+
+/* Main reader area */
+#reader-app {
+    position: fixed;
+    top: 60px;
+    bottom: 70px;
+    left: 0;
+    right: 0;
+    overflow: auto;
+    background: #0f0f0f;
+}
+
+.page-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100%;
+    padding: 20px;
+    gap: 10px;
+}
+
+.reader-page {
+    max-width: 100%;
+    max-height: calc(100vh - 150px);
+    height: auto;
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+    border-radius: 4px;
+}
+
+/* Controls footer */
+.reader-controls {
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 70px;
+    background: rgba(0, 0, 0, 0.95);
+    backdrop-filter: blur(10px);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    z-index: 1000;
+}
+
+.controls-group {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.btn-nav {
+    background: #4a9eff;
+    color: white;
+    border: none;
+    padding: 12px 24px;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 500;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    transition: all 0.2s;
+}
+
+.btn-nav:hover:not(:disabled) {
+    background: #3a8eef;
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(74, 158, 255, 0.4);
+}
+
+.btn-nav:disabled {
+    background: #333;
+    color: #666;
+    cursor: not-allowed;
+}
+
+.page-selector {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: rgba(255, 255, 255, 0.05);
+    padding: 8px 16px;
+    border-radius: 8px;
+}
+
+.page-selector span {
+    font-size: 14px;
+    color: #888;
+}
+
+#page-input {
+    width: 60px;
+    padding: 8px;
+    background: #2a2a2a;
+    border: 1px solid #444;
+    border-radius: 6px;
+    color: white;
+    text-align: center;
+    font-size: 16px;
+}
+
+#page-input:focus {
+    outline: none;
+    border-color: #4a9eff;
+}
+
+.btn-go {
+    background: #2a2a2a;
+    color: white;
+    border: 1px solid #444;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.btn-go:hover {
+    background: #3a3a3a;
+    border-color: #4a9eff;
+}
+
+.btn-control {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.2s;
+}
+
+.btn-control:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+/* Loading overlay */
+#loading-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.8);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 9999;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid rgba(255, 255, 255, 0.1);
+    border-top-color: #4a9eff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+#loading-overlay p {
+    margin-top: 20px;
+    font-size: 16px;
+    color: #888;
+}
+
+/* Error toast */
+.error-toast {
+    position: fixed;
+    top: 80px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #ff4444;
+    color: white;
+    padding: 16px 24px;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(255, 68, 68, 0.3);
+    z-index: 10000;
+    font-size: 14px;
+    max-width: 90%;
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .reader-header {
+        padding: 0 10px;
+    }
+    
+    .chapter-info h1 {
+        font-size: 14px;
+    }
+    
+    .chapter-number {
+        font-size: 12px;
+    }
+    
+    .controls-group {
+        flex-wrap: wrap;
+        gap: 10px;
+        padding: 0 10px;
+    }
+    
+    .btn-nav {
+        padding: 10px 16px;
+        font-size: 14px;
+    }
+    
+    .page-selector {
+        order: 3;
+        width: 100%;
+        justify-content: center;
+    }
+}
+
+/* Scrollbar personalizado */
+#reader-app::-webkit-scrollbar {
+    width: 12px;
+}
+
+#reader-app::-webkit-scrollbar-track {
+    background: #1a1a1a;
+}
+
+#reader-app::-webkit-scrollbar-thumb {
+    background: #333;
+    border-radius: 6px;
+}
+
+#reader-app::-webkit-scrollbar-thumb:hover {
+    background: #444;
+}

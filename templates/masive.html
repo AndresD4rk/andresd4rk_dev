@@ -1,0 +1,394 @@
+<!DOCTYPE html>
+<html lang="es">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Subir Capítulos CBZ (Masivo)</title>
+    <style>
+        /* CSS se mantiene en gran medida igual */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 40px;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            max-width: 600px;
+            /* Aumentado para mejor visualización de la lista de archivos */
+            width: 100%;
+        }
+
+        h1 {
+            color: #333;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            color: #555;
+            font-weight: 500;
+        }
+
+        input[type="text"] {
+            width: 100%;
+            padding: 12px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border 0.3s;
+        }
+
+        input:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        .file-input-wrapper {
+            position: relative;
+            overflow: hidden;
+            display: inline-block;
+            width: 100%;
+        }
+
+        .file-input-wrapper input[type=file] {
+            position: absolute;
+            left: -9999px;
+        }
+
+        .file-input-label {
+            display: block;
+            padding: 15px;
+            background: #f5f5f5;
+            border: 2px dashed #ccc;
+            border-radius: 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s;
+        }
+
+        .file-input-label:hover {
+            background: #ebebeb;
+            border-color: #667eea;
+        }
+
+        /* Estilos para la lista de archivos seleccionados */
+        #fileList {
+            list-style: none;
+            margin-top: 15px;
+            padding: 0;
+            max-height: 150px;
+            overflow-y: auto;
+            border: 1px solid #e0e0e0;
+            border-radius: 8px;
+        }
+
+        #fileList li {
+            padding: 8px 15px;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 14px;
+            color: #333;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        #fileList li:last-child {
+            border-bottom: none;
+        }
+
+        .file-status {
+            font-weight: 600;
+            font-size: 12px;
+            padding: 3px 8px;
+            border-radius: 4px;
+        }
+
+        .status-pending {
+            color: #555;
+            background: #f0f0f0;
+        }
+
+        .status-uploading {
+            color: #007bff;
+            background: #e6f7ff;
+        }
+
+        .status-success {
+            color: #155724;
+            background: #d4edda;
+        }
+
+        .status-error {
+            color: #721c24;
+            background: #f8d7da;
+        }
+
+        /* Fin de estilos para la lista de archivos */
+
+        button {
+            width: 100%;
+            padding: 15px;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        button:hover:not(:disabled) {
+            transform: translateY(-2px);
+        }
+
+        button:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+
+        /* Se usa para el resumen del resultado total */
+        .result {
+            margin-top: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            display: none;
+        }
+
+        .result.success {
+            background: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+
+        .result.error {
+            background: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+
+        .loading {
+            text-align: center;
+            margin-top: 20px;
+            display: none;
+        }
+
+        .spinner {
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid #667eea;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto;
+        }
+
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>📚 Subir Capítulos CBZ (Masivo)</h1>
+
+        <form id="uploadForm">
+            <div class="form-group">
+                <label>Nombre de la Serie</label>
+                <input type="text" id="seriesName" placeholder="Ej: One Piece" required>
+            </div>
+
+            <div class="form-group">
+                <label>Archivo CBZ(s)</label>
+                <div class="file-input-wrapper">
+                    <label class="file-input-label" for="fileInput">
+                        📁 Seleccionar uno o más archivos .cbz
+                    </label>
+                    <input type="file" id="fileInput" accept=".cbz" multiple required>
+                </div>
+                <ul id="fileList"></ul>
+            </div>
+
+            <button type="submit" id="submitBtn">Subir Capítulos Seleccionados</button>
+        </form>
+
+        <div class="loading" id="loading">
+            <div class="spinner"></div>
+            <p id="loading-text">Preparando subida de 0 archivos...</p>
+        </div>
+
+        <div class="result" id="result"></div>
+    </div>
+
+    <script>
+        const form = document.getElementById('uploadForm');
+        const fileInput = document.getElementById('fileInput');
+        const fileList = document.getElementById('fileList'); // Nuevo elemento
+        const loading = document.getElementById('loading');
+        const loadingText = document.getElementById('loading-text');
+        const result = document.getElementById('result');
+        const submitBtn = document.getElementById('submitBtn');
+
+        // Mapa para rastrear el estado de cada archivo (nombre de archivo -> estado)
+        const fileStatusMap = new Map();
+
+        // Función para actualizar la lista de archivos seleccionados
+        function updateFileList() {
+            fileList.innerHTML = '';
+            fileStatusMap.clear();
+
+            if (fileInput.files.length === 0) {
+                return;
+            }
+
+            for (const file of fileInput.files) {
+                // Inicializar estado como 'pendiente'
+                fileStatusMap.set(file.name, { status: 'pending', element: null });
+
+                const li = document.createElement('li');
+                li.innerHTML = `
+                    <span>${file.name}</span>
+                    <span id="status-${file.name.replace(/\./g, '_')}" class="file-status status-pending">Pendiente</span>
+                `;
+                fileStatusMap.get(file.name).element = li.querySelector('.file-status');
+                fileList.appendChild(li);
+            }
+        }
+
+        // Función para actualizar el estado de un archivo
+        function setFileStatus(fileName, status, message = '') {
+            const item = fileStatusMap.get(fileName);
+            if (!item) return;
+
+            const element = item.element;
+            element.textContent = status.charAt(0).toUpperCase() + status.slice(1); // Capitalizar la primera letra
+            element.className = `file-status status-${status}`;
+
+            if (message) {
+                element.title = message; // Mostrar el mensaje al pasar el ratón
+            }
+        }
+
+        // Mostrar lista de archivos seleccionados
+        fileInput.addEventListener('change', updateFileList);
+
+        // Manejar envío del formulario
+        form.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const files = Array.from(fileInput.files);
+            const totalFiles = files.length;
+            const seriesName = document.getElementById('seriesName').value;
+            let filesProcessed = 0;
+            let successCount = 0;
+            let errorCount = 0;
+
+            if (totalFiles === 0 || !seriesName) {
+                alert("Por favor, selecciona archivos y rellena el nombre de la serie.");
+                return;
+            }
+
+            // Mostrar loading
+            loading.style.display = 'block';
+            result.style.display = 'none';
+            submitBtn.disabled = true;
+            loadingText.textContent = `Preparando subida de ${totalFiles} archivos...`;
+            chapterNumber = 1;
+            for (const file of files) {
+                const fileName = file.name;
+
+                // 1. Marcar como subiendo
+                setFileStatus(fileName, 'uploading');
+                filesProcessed++;
+                loadingText.textContent = `Subiendo archivo ${filesProcessed} de ${totalFiles}: ${fileName}...`;
+
+                const formData = new FormData();
+
+                // Buscar el número dentro del nombre (uno o más dígitos)
+                const match = fileName.match(/\d+/);
+
+                const chapterNumber = match ? parseInt(match[0], 10) : 0;
+
+                formData.append('file', file);
+                formData.append('series_name', seriesName);
+                formData.append('chapter_number', chapterNumber);
+
+                try {
+                    const response = await fetch('/api/library/upload', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const data = await response.json();
+                    chapterNumber++;
+                    if (response.ok) {
+                        successCount++;
+                        setFileStatus(fileName, 'success', `chapter_number: ${data.chapter.chapter_number}`);
+                    } else {
+                        errorCount++;
+                        setFileStatus(fileName, 'error', `Error: ${data.error || 'Error desconocido del servidor'}`);
+                    }
+
+                } catch (error) {
+                    errorCount++;
+                    setFileStatus(fileName, 'error', `Error de conexión/red: ${error.message}`);
+                }
+            }
+
+            // Ocultar loading
+            loading.style.display = 'none';
+
+            // Mostrar resumen del resultado total
+            if (errorCount === 0) {
+                result.className = 'result success';
+                result.innerHTML = `
+                    <strong>✅ ¡Subida Masiva Completada!</strong><br><br>
+                    <strong>Total Archivos:</strong> ${totalFiles}<br>
+                    <strong>Subidos Correctamente:</strong> ${successCount}<br>
+                    <strong>Errores:</strong> ${errorCount}
+                `;
+            } else {
+                result.className = 'result error';
+                result.innerHTML = `
+                    <strong>⚠️ Subida Masiva Finalizada con Errores</strong><br><br>
+                    <strong>Total Archivos:</strong> ${totalFiles}<br>
+                    <strong>Subidos Correctamente:</strong> ${successCount}<br>
+                    <strong>Errores:</strong> ${errorCount}. Revisa el estado de cada archivo arriba.
+                `;
+            }
+
+            result.style.display = 'block';
+            submitBtn.disabled = false;
+        });
+    </script>
+</body>
+
+</html>
